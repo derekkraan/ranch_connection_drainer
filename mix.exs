@@ -7,22 +7,30 @@ defmodule RanchConnectionDrainer.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      package: package(),
+      source_url: "https://github.com/derekkraan/ranch_connection_drainer"
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:ex_doc, "~> 0.19", only: :dev}
+    ]
+  end
+
+  defp package() do
+    [
+      description: "Connection draining for Ranch listeners (Cowboy / Plug / Phoenix)",
+      licenses: ["MIT"],
+      maintainers: ["Derek Kraan"],
+      links: %{github: "https://github.com/derekkraan/ranch_connection_drainer"}
     ]
   end
 end
