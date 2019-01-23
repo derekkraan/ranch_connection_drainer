@@ -21,6 +21,7 @@ defmodule RanchConnectionDrainer.MixProject do
 
   defp deps do
     [
+      {:ranch, "~> 1.6"},
       {:ex_doc, "~> 0.19", only: :dev}
     ]
   end

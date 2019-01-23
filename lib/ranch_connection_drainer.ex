@@ -21,26 +21,29 @@ defmodule RanchConnectionDrainer do
 
   @spec child_spec(options :: keyword()) :: Supervisor.child_spec()
   def child_spec(options) when is_list(options) do
+    ranch_ref = Keyword.fetch!(options, :ranch_ref)
+    shutdown = Keyword.fetch!(options, :shutdown)
+
     %{
       id: __MODULE__,
-      start: {__MODULE__, :start_link, [Keyword.fetch!(options, :ranch_ref)]},
-      shutdown: Keyword.fetch!(options, :shutdown)
+      start: {__MODULE__, :start_link, [ranch_ref, shutdown]},
+      shutdown: shutdown
     }
   end
 
   @doc false
-  def start_link(ranch_ref) do
-    GenServer.start_link(__MODULE__, ranch_ref)
+  def start_link(ranch_ref, shutdown) do
+    GenServer.start_link(__MODULE__, {ranch_ref, shutdown})
   end
 
   @doc false
-  def init(ranch_ref) do
+  def init({ranch_ref, shutdown}) do
     Process.flag(:trap_exit, true)
-    {:ok, ranch_ref}
+    {:ok, {ranch_ref, shutdown}}
   end
 
-  def terminate(_reason, ranch_ref) do
+  def terminate(_reason, {ranch_ref, shutdown}) do
     :ok = :ranch.suspend_listener(ranch_ref)
-    :ok = :ranch.wait_for_connections(ranch_ref, :==, 0, :infinity)
+    :ok = :ranch.wait_for_connections(ranch_ref, :==, 0, shutdown)
   end
 end
