@@ -17,9 +17,6 @@ defmodule RanchConnectionDrainer do
   ```
   """
 
-  # Check every 2s when shutting down
-  @interval 2000
-
   use GenServer
 
   @spec child_spec(options :: keyword()) :: Supervisor.child_spec()
@@ -47,6 +44,6 @@ defmodule RanchConnectionDrainer do
 
   def terminate(_reason, ranch_ref) do
     :ok = :ranch.suspend_listener(ranch_ref)
-    :ok = :ranch.wait_for_connections(ranch_ref, :==, 0, @interval)
+    :ok = :ranch.wait_for_connections(ranch_ref, :==, 0)
   end
 end
