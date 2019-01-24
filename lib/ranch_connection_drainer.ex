@@ -18,6 +18,7 @@ defmodule RanchConnectionDrainer do
   """
 
   use GenServer
+  require Logger
 
   @spec child_spec(options :: keyword()) :: Supervisor.child_spec()
   def child_spec(options) when is_list(options) do
@@ -43,7 +44,10 @@ defmodule RanchConnectionDrainer do
   end
 
   def terminate(_reason, ranch_ref) do
+    Logger.info("Suspending listener #{inspect(ranch_ref)}")
     :ok = :ranch.suspend_listener(ranch_ref)
+    Logger.info("Waiting for connections to drain for listener #{inspect(ranch_ref)}...")
     :ok = :ranch.wait_for_connections(ranch_ref, :==, 0)
+    Logger.info("Connections successfully drained for listener #{inspect(ranch_ref)}")
   end
 end
