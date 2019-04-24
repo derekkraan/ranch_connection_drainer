@@ -1,11 +1,10 @@
-# RanchConnectionDrainer
+# RanchConnectionDrainer [![Hex pm](http://img.shields.io/hexpm/v/ranch_connection_drainer.svg?style=flat)](https://hex.pm/packages/ranch_connection_drainer)
 
 This mini library implements connection draining for servers that use Ranch (Cowboy, Plug, Phoenix, and maybe others).
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ranch_connection_drainer` to your list of dependencies in `mix.exs`:
+This package can be installed by adding `ranch_connection_drainer` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -28,7 +27,3 @@ Supervisor.init(children, opts)
 ```
 
 The format of `ranch_ref` is: `[PhoenixEndpoint].[HTTP | HTTPS]`. Please open an issue if this is unclear.
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ranch_connection_drainer](https://hexdocs.pm/ranch_connection_drainer).
