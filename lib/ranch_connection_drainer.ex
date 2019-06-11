@@ -22,7 +22,7 @@ defmodule RanchConnectionDrainer do
 
   @spec child_spec(options :: keyword()) :: Supervisor.child_spec()
   def child_spec(options) when is_list(options) do
-    id = Keyword.fetch(options, :id, __MODULE__)
+    id = Keyword.get(options, :id, __MODULE__)
     ranch_ref = Keyword.fetch!(options, :ranch_ref)
     shutdown = Keyword.fetch!(options, :shutdown)
 
