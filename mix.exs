@@ -6,12 +6,16 @@ defmodule RanchConnectionDrainer.MixProject do
       app: :ranch_connection_drainer,
       version: "0.1.4",
       elixir: "~> 1.7",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
       source_url: "https://github.com/derekkraan/ranch_connection_drainer"
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   def application do
     [
@@ -22,7 +26,10 @@ defmodule RanchConnectionDrainer.MixProject do
   defp deps do
     [
       {:ranch, "~> 1.6"},
-      {:ex_doc, "~> 0.19", only: :dev}
+      {:ex_doc, "~> 0.19", only: :dev},
+      {:plug_cowboy, "~> 2.0", only: :test},
+      {:mockery, "~> 2.3", runtime: false},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 

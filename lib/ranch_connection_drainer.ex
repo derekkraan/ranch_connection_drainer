@@ -18,37 +18,52 @@ defmodule RanchConnectionDrainer do
   """
 
   use GenServer
+  use RanchConnectionDrainer.Delegate
   require Logger
+  import Mockery.Macro
 
   @spec child_spec(options :: keyword()) :: Supervisor.child_spec()
   def child_spec(options) when is_list(options) do
     id = Keyword.get(options, :id, __MODULE__)
     ranch_ref = Keyword.fetch!(options, :ranch_ref)
-    shutdown = Keyword.fetch!(options, :shutdown)
+    shutdown = Keyword.get(options, :shutdown, 30_000)
+    delegate = Keyword.get(options, :delegate, RanchConnectionDrainer)
 
     %{
       id: id,
-      start: {__MODULE__, :start_link, [ranch_ref]},
+      start: {__MODULE__, :start_link, [[ranch_ref: ranch_ref, delegate: delegate]]},
       shutdown: shutdown
     }
   end
 
   @doc false
-  def start_link(ranch_ref) do
-    GenServer.start_link(__MODULE__, ranch_ref)
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args)
   end
 
   @doc false
-  def init(ranch_ref) do
+  def init(args) do
     Process.flag(:trap_exit, true)
-    {:ok, ranch_ref}
+    {:ok, args}
   end
 
-  def terminate(_reason, ranch_ref) do
+  defp ranch, do: mockable(:ranch)
+
+  def terminate(reason, ranch_ref: ranch_ref, delegate: delegate) do
     Logger.info("Suspending listener #{inspect(ranch_ref)}")
-    :ok = :ranch.suspend_listener(ranch_ref)
-    Logger.info("Waiting for connections to drain for listener #{inspect(ranch_ref)}...")
-    :ok = :ranch.wait_for_connections(ranch_ref, :==, 0)
-    Logger.info("Connections successfully drained for listener #{inspect(ranch_ref)}")
+
+    with {:before_suspend, {:ok, :continue}} <-
+           {:before_suspend, mockable(delegate).before_suspend(reason, ranch_ref)},
+         {:suspend, :ok} <- {:suspend, ranch().suspend_listener(ranch_ref)},
+         {:after_suspend, {:ok, :continue}} <-
+           {:after_suspend, mockable(delegate).after_suspend(reason, ranch_ref)},
+         {:wait, :ok} <- {:wait, ranch().wait_for_connections(ranch_ref, :==, 0)} do
+      mockable(delegate).before_terminate(reason, ranch_ref, nil)
+      Logger.info("Connections successfully drained for listener #{inspect(ranch_ref)}")
+    else
+      {step, _} ->
+        mockable(delegate).before_terminate(reason, ranch_ref, step)
+        Logger.info("Connections successfully drained for listener #{inspect(ranch_ref)}")
+    end
   end
 end
