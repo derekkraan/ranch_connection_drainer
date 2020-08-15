@@ -58,12 +58,12 @@ defmodule RanchConnectionDrainer do
          {:after_suspend, {:ok, :continue}} <-
            {:after_suspend, mockable(delegate).after_suspend(reason, ranch_ref)},
          {:wait, :ok} <- {:wait, ranch().wait_for_connections(ranch_ref, :==, 0)} do
-      mockable(delegate).before_terminate(reason, ranch_ref, nil)
       Logger.info("Connections successfully drained for listener #{inspect(ranch_ref)}")
+      mockable(delegate).before_terminate(reason, ranch_ref, nil)
     else
       {step, _} ->
-        mockable(delegate).before_terminate(reason, ranch_ref, step)
         Logger.info("Connections successfully drained for listener #{inspect(ranch_ref)}")
+        mockable(delegate).before_terminate(reason, ranch_ref, step)
     end
   end
 end
