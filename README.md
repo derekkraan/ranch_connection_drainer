@@ -1,3 +1,5 @@
+# DEPRECATED: plug_cowboy 2.3.0 includes [Plug.Cowboy.Drainer](https://hexdocs.pm/plug_cowboy/2.4.1/Plug.Cowboy.Drainer.html#content), which largely replaces the functionality of this library.
+
 # RanchConnectionDrainer [![Hex pm](http://img.shields.io/hexpm/v/ranch_connection_drainer.svg?style=flat)](https://hex.pm/packages/ranch_connection_drainer)
 
 This mini library implements connection draining for servers that use Ranch (Cowboy, Plug, Phoenix, and maybe others).
